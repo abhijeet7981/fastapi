@@ -57,3 +57,30 @@ def read_fav_book():
 @app.get('/books/{book_id}')
 def read_book(book_id: int):
     return {'book_title':book_id}
+
+
+
+@app.post('/')
+def create_book(book_title,book_author):
+    current_book_id=0
+
+    if len(BOOKS)>0:
+        for book in BOOKS:
+            x=int(book[-1])
+            if x >current_book_id:
+                current_book_id=x
+
+    BOOKS[f'book{current_book_id + 1}'] = {'title':book_title,'author':book_author}
+    return BOOKS[f'book{current_book_id + 1}']
+
+
+@app.put('/{book_name}')
+def update_book(book_name:str,book_title:str,book_author:str):
+    book_info={'title':book_title,'author':book_author}
+    BOOKS[book_name]=book_info
+    return book_info
+
+@app.delete('/{book_name}')
+def delete_book(book_name):
+    BOOKS[book_name]
+    return f'book {book_name} deleted'
