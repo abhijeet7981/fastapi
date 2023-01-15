@@ -1,7 +1,8 @@
-from fastapi import FastAPI,HTTPException
+from fastapi import FastAPI,HTTPException,Request,status,Form,Header
 from pydantic import BaseModel,Field
 from uuid import UUID
 from typing import Optional
+from starlette.responses import JSONResponse
 
 app=FastAPI()
 
@@ -25,6 +26,14 @@ class Book(BaseModel):
         }
         }
 
+class BookNoRating(BaseModel):
+    id:UUID
+    title:str=Field(min_length=1)  #for must input
+    author:str=Field(min_length=1,max_length=100)
+    description:Optional[str]=Field(None,title= 'Description of book',min_length=1,max_length=100)
+
+    
+
 
 BOOKS=[]
 
@@ -43,6 +52,16 @@ def read_all_books(books_to_return:Optional[int]=None):
     return BOOKS
 
 
+@app.post('/books/login')
+def book_lofgin(username:str =Form(),password:str=Form()):
+    return {'username':username, 'password':password}
+
+@app.get('/header')
+def read_header(random_header:Optional[str]=Header(None)):
+    return {'random_header':random_header}
+
+
+
 
 #get the boom with UUID
 @app.get('/book/{book_id}/')
@@ -53,12 +72,22 @@ def read_book(book_id:UUID):
     raise raise_item_cannot_found()
 
 
+#get the boom with UUID
+@app.get('/book/rating/{book_id}/',response_model=BookNoRating)
+def read_book_no_rating(book_id:UUID):
+    for x in BOOKS:
+        if x.id==book_id:
+            return x
+    raise raise_item_cannot_found()
+
+
+
 
 
 
 
 #adding book in the DB
-@app.post('/')
+@app.post('/',status_code=status.HTTP_201_CREATED)
 def create_book(book:Book):
     BOOKS.append(book)
     return book
@@ -95,7 +124,7 @@ def delete_book(book_id:UUID):
  raise raise_item_cannot_found()
 
 
- 
+
 
 
 
