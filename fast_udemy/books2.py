@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,HTTPException
 from pydantic import BaseModel,Field
 from uuid import UUID
 from typing import Optional
@@ -33,7 +33,7 @@ def read_all_books(books_to_return:Optional[int]=None):
     if len(BOOKS)<1:
         create_book_no_api()
 
-    if books_to_return and len(BOOKS)>= books_to_return>0:
+    if books_to_return and len(BOOKS) >= books_to_return >0:
         i=1
         new_books=[]
         while i<=books_to_return:
@@ -44,10 +44,61 @@ def read_all_books(books_to_return:Optional[int]=None):
 
 
 
+#get the boom with UUID
+@app.get('/book/{book_id}/')
+def read_book(book_id:UUID):
+    for x in BOOKS:
+        if x.id==book_id:
+            return x
+    raise raise_item_cannot_found()
+
+
+
+
+
+
+#adding book in the DB
 @app.post('/')
 def create_book(book:Book):
     BOOKS.append(book)
     return book
+
+
+
+
+   #update book with UUID
+@app.put('/{book_id}/')
+    
+def update_book(book_id:UUID,book:Book):
+    counter=0
+    for x in BOOKS:
+        counter+=1
+        if x.id==book_id:
+            BOOKS[counter-1]=book
+            return BOOKS[counter-1]
+    raise raise_item_cannot_found()
+
+
+
+    
+
+@app.delete('/{book_id}/')
+def delete_book(book_id:UUID):
+ counter=0
+ for x in BOOKS:
+     counter+=1
+     if x.id==book_id:
+        BOOKS.pop(counter-1)
+        return f'ID : {book_id} deleted'
+
+
+ raise raise_item_cannot_found()
+
+
+ 
+
+
+
 
 
 
@@ -61,6 +112,14 @@ def create_book_no_api():
     BOOKS.append(book2)
     BOOKS.append(book3)
     BOOKS.append(book4)
+
+
+
+def raise_item_cannot_found():
+    return HTTPException(status_code=404,detail='not found',headers={'X-header-Error':'nothing tobe seen at thr uuid'})
+
+
+
 
 
 
