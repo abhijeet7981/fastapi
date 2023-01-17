@@ -4,6 +4,7 @@ from database import engine,SeccisonLocal
 from sqlalchemy.orm import Session
 from pydantic import BaseModel,Field
 from typing import Optional,List
+from auth import get_current_user,get_user_exceptions
 
 
 
@@ -30,6 +31,12 @@ class Todo(BaseModel):
 @app.get("/")
 def read_all(db:Session=Depends(get_db)):
     return db.query(models.Todo).all()
+
+@app.get('/todos/user')
+def read_all_by_user(user:dict=Depends(get_current_user),db:Session=Depends(get_db)):
+    if user is None:
+        raise get_user_exceptions()
+    return db.query(models.Todo).filter(models.Todo.owner_id==user.get('id')).all()
 
 @app.get("/todo/{id}")
 def read_one(id:int,db:Session=Depends(get_db)):
