@@ -48,3 +48,33 @@ def create_todo(todo:Todo,db:Session=Depends(get_db)):
 
 def http_exception():
     return HTTPException(status_code=404,detail="Todo not found")
+
+@app.put('/{id}')
+def update_todo(id:int,todo:Todo,db:Session=Depends(get_db)):
+    db_todo=db.query(models.Todo).filter(models.Todo.id==id).first()
+    if db_todo is not None:
+        db_todo.title=todo.title
+        db_todo.description=todo.description
+        db_todo.priority=todo.priority
+        db_todo.complete=todo.complete
+        db.add(db_todo)
+        db.commit()
+        return sucessful_responce(200)
+    else:
+        raise http_exception()
+
+
+@app.delete('/{id}')
+def delete_todo(id:int,db:Session=Depends(get_db)):
+    db_todo=db.query(models.Todo).filter(models.Todo.id==id).first()
+    if db_todo is not None:
+        db.delete(db_todo)
+        db.commit()
+        return {'status_code':200,'transection':'sucesfull'}
+    else:
+        raise http_exception()
+
+
+def sucessful_responce(status_code:int):
+    return {'status_code':status_code,'transection':'sucesfull'}
+    
