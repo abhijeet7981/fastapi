@@ -38,6 +38,7 @@ def read_all_by_user(user:dict=Depends(get_current_user),db:Session=Depends(get_
         raise get_user_exceptions()
     return db.query(models.Todo).filter(models.Todo.owner_id==user.get('id')).all()
 
+
 @app.get("/todo/{id}")
 def read_one(id:int,db:Session=Depends(get_db)):
     todo_model= db.query(models.Todo).filter(models.Todo.id==id).first()
@@ -84,4 +85,7 @@ def delete_todo(id:int,db:Session=Depends(get_db)):
 
 def sucessful_responce(status_code:int):
     return {'status_code':status_code,'transection':'sucesfull'}
+
+
+#ahmsdfjksdzfhkdfs
     
